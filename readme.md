@@ -7,7 +7,7 @@ This repository contains two Python scripts for scraping the SEC Edgar database 
 1. [Scripts](#scripts)
     - [edgar8k.py](#edgar8kpy)
     - [edgar8kemail.py](#edgar8kemailpy)
-    - [edgar8kemail-internalsmtp.py](#edgar8kemail-internalsmtp.py)
+    - [edgar8kemail-internalsmtp.py](#edgar8kemail-internalsmtppy)
 2. [Requirements](#requirements)
 3. [Installation](#installation)
 4. [Usage](#usage)
