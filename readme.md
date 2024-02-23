@@ -7,6 +7,7 @@ This repository contains two Python scripts for scraping the SEC Edgar database 
 1. [Scripts](#scripts)
     - [edgar8k.py](#edgar8kpy)
     - [edgar8kemail.py](#edgar8kemailpy)
+    - [edgar8kemail-internalsmtp.py](#edgar8kemail-internalsmtp.py)
 2. [Requirements](#requirements)
 3. [Installation](#installation)
 4. [Usage](#usage)
@@ -28,7 +29,7 @@ If you want to only have the csv sent as an attachment remove the following port
 # Attach the HTML content to the email
 msg.attach(MIMEText(html, 'html'))
 ```
-## edgar8kemail-internalsmtp.py
+### edgar8kemail-internalsmtp.py
 
 The `edgar8kemail-internalsmtp.py` script is used to scrape data from the SEC's EDGAR database and send the results via email using an internal SMTP server. Includes the data in the body of an email, and sends the email with the CSV file as an attachment
 
