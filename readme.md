@@ -29,11 +29,10 @@ Follow these steps to install and setup the project:
     Clone this repository to your local machine using the following command:
 
     ```bash
-    git clone https://github.com/yourusername/yourrepository.git
+    git clone https://github.com/cladkins/SEC-8K-1.05
     ```
 
-    Replace `yourusername` and `yourrepository` with your GitHub username and repository name respectively.
-
+    
 2. **Navigate to the project directory**
 
     Change your current directory to the project directory:
