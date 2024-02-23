@@ -5,3 +5,4 @@ edgar8kemail.py
 /__pycache__
 /pycache/*
 .DS_Store
+geckodriver.log
