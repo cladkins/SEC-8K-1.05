@@ -13,7 +13,7 @@ options = Options()
 options.headless = True
 
 # URL to scrape
-url = "https://www.sec.gov/edgar/search/#/q=%2522Material%2520Cybersecurity%2522&dateRange=30d&category=custom&forms=8-K&sort=desc"
+url = "https://www.sec.gov/edgar/search/#/q=%2522Material%2520Cybersecurity%2520Incidents%2522&dateRange=30d&category=custom&forms=8-K&sort=desc"
 
 # Set up headless browser
 driver = webdriver.Firefox(options=options)
