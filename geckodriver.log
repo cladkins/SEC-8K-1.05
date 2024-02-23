@@ -1,0 +1,13 @@
+1708721901494	geckodriver	INFO	Listening on 127.0.0.1:57678
+1708721902004	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" MOZ_NO_REMOTE="1" "/App ... s" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/xz/49ff5h910cl5sjzv02fb0v340000gn/T/rust_mozprofilerRw3HK"
+*** You are running in headless mode.
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1708721902211	Marionette	INFO	Marionette enabled
+console.error: "Warning: unrecognized command line flag" "-remote-allow-hosts"
+1708721902411	Marionette	INFO	Listening on port 57686
+WebDriver BiDi listening on ws://127.0.0.1:57679
+1708721902489	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+DevTools listening on ws://127.0.0.1:57679/devtools/browser/387310df-f079-43f9-b26e-703be44e4219
+JavaScript error: https://www.sec.gov/edgar/search/#/q=%2522Material%2520Cybersecurity%2522&dateRange=30d&category=custom&forms=8-K&sort=desc line 512 > injectedScript, line 5: ReferenceError: gtmYTplayers is not defined
