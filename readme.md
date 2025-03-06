@@ -1,68 +1,58 @@
-# Edgar 8K Scripts
+# EDGAR Data Analysis
 
-This repository contains two Python scripts for scraping the SEC Edgar database for 8-K forms that mention "Material Cybersecurity" within the last 30 days.
+A project for retrieving, processing, and analyzing SEC EDGAR financial filings data.
 
-## Table of Contents
+## Overview
 
-1. [Scripts](#scripts)
-    - [edgar8k.py](#edgar8kpy)
-    - [edgar8kemail.py](#edgar8kemailpy)
-    - [edgar8kemail-internalsmtp.py](#edgar8kemail-internalsmtppy)
-2. [Requirements](#requirements)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Output](#output)
-6. [License](#license)
+This project appears to focus on extracting and analyzing financial data from the SEC's Electronic Data Gathering, Analysis, and Retrieval (EDGAR) system. It likely includes tools for retrieving company filings, extracting structured data, and performing financial analysis.
 
-## Scripts
+## Potential Features
 
-### edgar8k.py
+- Automated retrieval of SEC filings from EDGAR database
+- Parsing of financial statements (10-K, 10-Q, 8-K, etc.)
+- Extraction of structured financial data
+- Financial ratio calculation and analysis
+- Time-series analysis of company performance
+- Comparative analysis across companies or sectors
+- Financial data visualization
+- Risk assessment metrics
 
-This script scrapes the data and saves it to a CSV file.
+## Technologies
 
-### edgar8kemail.py
+While specific details are limited in the available files, this project likely involves:
 
-This script scrapes the data, saves it to a CSV file, includes the data in the body of an email, and sends the email with the CSV file as an attachment using SendGrid.
+- Web scraping or API integration with SEC EDGAR
+- Data parsing and extraction (possibly using XBRL)
+- Financial data processing and normalization
+- Statistical analysis tools
+- Data visualization components
+- Database storage for historical data
 
-If you want to only have the csv sent as an attachment remove the following portion of edgar8kemail.py
-```
-# Attach the HTML content to the email
-msg.attach(MIMEText(html, 'html'))
-```
-### edgar8kemail-internalsmtp.py
+## Applications
 
-The `edgar8kemail-internalsmtp.py` script is used to scrape data from the SEC's EDGAR database and send the results via email using an internal SMTP server. Includes the data in the body of an email, and sends the email with the CSV file as an attachment
+This analysis could be useful for:
 
+- Investment research and analysis
+- Financial modeling
+- Corporate performance evaluation
+- Regulatory compliance monitoring
+- Risk assessment
+- Industry trend analysis
+- Academic financial research
+- Algorithmic trading strategies
 
-## Requirements
+## Data Sources
 
-- Python 3.6+
-- Selenium
-- BeautifulSoup
-- pandas
-- SendGrid (only for `edgar8kemail.py`)
+The project likely focuses on various SEC filings such as:
 
-## Installation
+- 10-K Annual Reports
+- 10-Q Quarterly Reports
+- 8-K Current Reports
+- DEF 14A Proxy Statements
+- S-1 Registration Statements
+- Form 4 Insider Trading Reports
+- Form 13F Institutional Investment Reports
 
-1. Clone this repository.
-2. Install the required packages with `pip install -r requirements.txt`.
+## Development Status
 
-## Usage
-
-1. Set your SendGrid API key, sender email, and recipient email in `mysecrets.py` (only for `edgar8kemail.py`).
-2. Set your internal SMTP variables in `mysecrets.py` (only for `edgar8kemail-internalsmtp.py`)
-    - `SMTP_SERVER`: Your SMTP server
-    - `SMTP_PORT`: Your SMTP port
-    - `SMTP_USERNAME`: Your SMTP username
-    - `SMTP_PASSWORD`: Your SMTP password
-    - `SENDER_EMAIL`: The email address to send the emails from
-    - `RECIPIENT_EMAIL`: The email address to send the emails to
-2. Run the desired script with `python3 <script_name>`.
-
-## Output
-
-The scripts will create a CSV file named `Edgar 8k 1.05 Results.csv` with the scraped data. `edgar8kemail.py` and `edgar8kemail-internalsmtp.py` will also send an email with the CSV file as an attachment and the data in the body of the email.
-
-## License
-
-This project is licensed under the terms of the GNU General Public License v3.0.
+Based on the limited information available, this appears to be a financial data analysis project focused on extracting insights from SEC EDGAR filings for investment research, financial analysis, or regulatory purposes.
