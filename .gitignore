@@ -1,7 +1,7 @@
+.env
 mysecrets.py
 __pycache__/
-__pycache__
-/__pycache__
-/pycache/*
 .DS_Store
 geckodriver.log
+.venv/
+venv/
