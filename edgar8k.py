@@ -90,6 +90,14 @@ class Filing:
 
 
 def build_client(user_agent: str) -> httpx.Client:
+    # Strip whitespace/newlines — env vars and pasted secrets often arrive
+    # with a trailing \n, which httpx rejects as an illegal header value.
+    user_agent = (user_agent or "").strip()
+    if not user_agent:
+        raise SystemExit(
+            "SEC User-Agent is empty. Set --user-agent or the SEC_USER_AGENT env var "
+            "to a real contact string like 'Your Name you@example.com'."
+        )
     return httpx.Client(
         headers={
             "User-Agent": user_agent,
