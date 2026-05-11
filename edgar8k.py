@@ -288,6 +288,128 @@ def write_csv(filings: Iterable[Filing], path: Path) -> pd.DataFrame:
     return df
 
 
+_ENTITY_NAME_RE = re.compile(r"^(?P<name>.+?)(?:\s*\((?P<tickers>[^)]+)\))?\s*$")
+
+
+def _split_entity(entity: str) -> tuple[str, str]:
+    """Split 'TRIO-TECH INTERNATIONAL  (TRT) ' into ('TRIO-TECH INTERNATIONAL', 'TRT')."""
+    m = _ENTITY_NAME_RE.match(entity.strip())
+    if not m:
+        return entity.strip(), ""
+    return m.group("name").strip(), (m.group("tickers") or "").strip()
+
+
+def _paragraphize(text: str, sentences_per_paragraph: int = 3) -> list[str]:
+    """Best-effort paragraph split for a single-line block of disclosure text."""
+    text = text.strip()
+    if not text or text == "Not found":
+        return [text] if text else []
+    # Split on sentence-ending punctuation followed by whitespace + uppercase letter.
+    parts = re.split(r"(?<=[.!?])\s+(?=[A-Z(\"])", text)
+    paragraphs: list[str] = []
+    buf: list[str] = []
+    for part in parts:
+        buf.append(part.strip())
+        if len(buf) >= sentences_per_paragraph:
+            paragraphs.append(" ".join(buf))
+            buf = []
+    if buf:
+        paragraphs.append(" ".join(buf))
+    return paragraphs
+
+
+def render_markdown(
+    filings: list[Filing],
+    *,
+    start_date: date,
+    end_date: date,
+    query: str,
+) -> str:
+    today = date.today().isoformat()
+    lines: list[str] = []
+    lines.append("# SEC 8-K Item 1.05 — Material Cybersecurity Incidents")
+    lines.append("")
+    lines.append(
+        f"Disclosures filed between **{start_date.isoformat()}** and "
+        f"**{end_date.isoformat()}**. "
+        f"_Generated {today} from EDGAR full-text search for {query}._"
+    )
+    lines.append("")
+    if not filings:
+        lines.append("_No matching filings in this window._")
+        lines.append("")
+        return "\n".join(lines)
+
+    lines.append(f"**{len(filings)} filing{'s' if len(filings) != 1 else ''}.**")
+    lines.append("")
+    lines.append("## Table of contents")
+    lines.append("")
+    for f in filings:
+        name, _ = _split_entity(f.filing_entity)
+        anchor = re.sub(r"[^a-z0-9-]+", "-", name.lower()).strip("-")
+        lines.append(f"- [{name} — filed {f.filed}](#{anchor})")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+
+    for f in filings:
+        name, tickers = _split_entity(f.filing_entity)
+        heading = f"{name} ({tickers})" if tickers else name
+        lines.append(f"## {heading}")
+        lines.append("")
+        meta = [
+            f"**Filed:** {f.filed}",
+            f"**Reporting for:** {f.reporting_for or '—'}",
+            f"**Form:** {f.form_and_file.strip() or '—'}",
+        ]
+        lines.append("  \n".join(meta))
+        lines.append("")
+        loc_parts = [p for p in (f.located, f.incorporated) if p]
+        location_line = []
+        if f.cik:
+            location_line.append(f"**{f.cik}**")
+        if f.located:
+            location_line.append(f"Located: {f.located}")
+        if f.incorporated:
+            location_line.append(f"Incorporated: {f.incorporated}")
+        if f.file_number:
+            location_line.append(f"File #: {f.file_number}")
+        if location_line:
+            lines.append(" · ".join(location_line))
+            lines.append("")
+        if f.link:
+            lines.append(f"[View filing on SEC.gov →]({f.link})")
+            lines.append("")
+        lines.append("### Disclosure")
+        lines.append("")
+        for para in _paragraphize(f.incident_text):
+            for sub in para.split("\n"):
+                sub = sub.strip()
+                if sub:
+                    lines.append(f"> {sub}")
+            lines.append(">")
+        # Drop the trailing empty blockquote marker.
+        while lines and lines[-1] == ">":
+            lines.pop()
+        lines.append("")
+        lines.append("---")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def write_markdown(
+    filings: list[Filing],
+    path: Path,
+    *,
+    start_date: date,
+    end_date: date,
+    query: str,
+) -> None:
+    content = render_markdown(filings, start_date=start_date, end_date=end_date, query=query)
+    path.write_text(content, encoding="utf-8")
+    logger.info("Wrote Markdown summary to %s", path)
+
+
 def send_sendgrid(df: pd.DataFrame, csv_path: Path) -> None:
     from sendgrid import SendGridAPIClient
     from sendgrid.helpers.mail import (
@@ -367,6 +489,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--start", type=lambda s: datetime.strptime(s, "%Y-%m-%d").date(), help="Start date YYYY-MM-DD (overrides --days)")
     p.add_argument("--end", type=lambda s: datetime.strptime(s, "%Y-%m-%d").date(), help="End date YYYY-MM-DD (default: today)")
     p.add_argument("--output", type=Path, default=Path(DEFAULT_OUTPUT), help=f"CSV output path (default: {DEFAULT_OUTPUT!r})")
+    p.add_argument(
+        "--markdown",
+        type=Path,
+        default=None,
+        help="Markdown summary output path. Defaults to the CSV path with a .md extension.",
+    )
+    p.add_argument(
+        "--no-markdown",
+        action="store_true",
+        help="Skip writing the Markdown summary.",
+    )
     p.add_argument("--email", choices=["none", "sendgrid", "smtp"], default="none", help="Email the results after writing the CSV")
     p.add_argument("--user-agent", default=os.environ.get("SEC_USER_AGENT", DEFAULT_USER_AGENT), help="Value for the SEC User-Agent header")
     p.add_argument("-v", "--verbose", action="store_true", help="Enable debug logging")
@@ -392,6 +525,16 @@ def main(argv: list[str] | None = None) -> int:
         require_item=args.require_item or None,
     )
     df = write_csv(filings, args.output)
+
+    if not args.no_markdown:
+        md_path = args.markdown or args.output.with_suffix(".md")
+        write_markdown(
+            filings,
+            md_path,
+            start_date=start_date,
+            end_date=end_date,
+            query=args.query,
+        )
 
     if args.email == "sendgrid":
         send_sendgrid(df, args.output)
