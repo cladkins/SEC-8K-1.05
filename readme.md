@@ -1,58 +1,65 @@
-# EDGAR Data Analysis
+# SEC 8-K Item 1.05 — Material Cybersecurity Incidents
 
-A project for retrieving, processing, and analyzing SEC EDGAR financial filings data.
+Pulls SEC EDGAR 8-K filings that disclose a Material Cybersecurity Incident
+under Item 1.05, extracts the disclosure text, and saves the results to a CSV.
+Optionally emails the CSV via SendGrid or SMTP.
 
-## Overview
+Originally a Selenium scraper; rewritten to use the official EDGAR
+full-text-search JSON API. No browser required.
 
-This project appears to focus on extracting and analyzing financial data from the SEC's Electronic Data Gathering, Analysis, and Retrieval (EDGAR) system. It likely includes tools for retrieving company filings, extracting structured data, and performing financial analysis.
+## Install
 
-## Potential Features
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env  # then edit
+```
 
-- Automated retrieval of SEC filings from EDGAR database
-- Parsing of financial statements (10-K, 10-Q, 8-K, etc.)
-- Extraction of structured financial data
-- Financial ratio calculation and analysis
-- Time-series analysis of company performance
-- Comparative analysis across companies or sectors
-- Financial data visualization
-- Risk assessment metrics
+## Configure
 
-## Technologies
+Edit `.env`. The only required variable is `SEC_USER_AGENT`, which the SEC's
+fair-access policy mandates — it must contain a real name and email:
 
-While specific details are limited in the available files, this project likely involves:
+```
+SEC_USER_AGENT="Your Name you@example.com"
+```
 
-- Web scraping or API integration with SEC EDGAR
-- Data parsing and extraction (possibly using XBRL)
-- Financial data processing and normalization
-- Statistical analysis tools
-- Data visualization components
-- Database storage for historical data
+If you plan to email the report, also fill in either the SendGrid or SMTP block.
 
-## Applications
+## Run
 
-This analysis could be useful for:
+```bash
+# Default: last 30 days, "Material Cybersecurity Incidents" in 8-K filings,
+# writes to "Edgar 8k 1.05 Results.csv".
+python edgar8k.py
 
-- Investment research and analysis
-- Financial modeling
-- Corporate performance evaluation
-- Regulatory compliance monitoring
-- Risk assessment
-- Industry trend analysis
-- Academic financial research
-- Algorithmic trading strategies
+# Custom window
+python edgar8k.py --days 7
+python edgar8k.py --start 2024-01-01 --end 2024-03-31
 
-## Data Sources
+# Different query / forms
+python edgar8k.py --query '"ransomware"' --forms 8-K,10-K
 
-The project likely focuses on various SEC filings such as:
+# Email the result
+python edgar8k.py --email sendgrid
+python edgar8k.py --email smtp
 
-- 10-K Annual Reports
-- 10-Q Quarterly Reports
-- 8-K Current Reports
-- DEF 14A Proxy Statements
-- S-1 Registration Statements
-- Form 4 Insider Trading Reports
-- Form 13F Institutional Investment Reports
+# Verbose logging
+python edgar8k.py -v
+```
 
-## Development Status
+## CSV columns
 
-Based on the limited information available, this appears to be a financial data analysis project focused on extracting insights from SEC EDGAR filings for investment research, financial analysis, or regulatory purposes.
+`Form & File`, `Filed`, `Reporting for`, `Filing entity/person`, `CIK`,
+`Located`, `Incorporated`, `File number`, `Film number`, `Link`,
+`Cybersecurity Incident`.
+
+## Notes
+
+- Item 1.05 was added to Form 8-K by the SEC's 2023 cybersecurity disclosure
+  rule and became required for most registrants on Dec 18, 2023.
+- The disclosure extractor finds the "Item 1.05" header in the filing's HTML
+  and captures text up to the next Item header or a "Cautionary Statement"
+  block.
+- Requests are spaced out to stay under SEC's 10 req/sec rate limit.
