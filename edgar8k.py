@@ -125,6 +125,7 @@ def search_filings(
     forms: str,
     start_date: date,
     end_date: date,
+    require_item: str | None,
 ) -> list[dict]:
     params = {
         "q": query,
@@ -140,6 +141,21 @@ def search_filings(
     resp = get_with_retry(client, EDGAR_SEARCH_URL, params=params)
     hits = resp.json().get("hits", {}).get("hits", [])
     logger.info("EDGAR returned %d hits", len(hits))
+
+    if require_item:
+        kept = []
+        dropped = []
+        for h in hits:
+            items = (h.get("_source") or {}).get("items") or []
+            if require_item in items:
+                kept.append(h)
+            else:
+                dropped.append((h.get("_id", "?"), items))
+        for hit_id, items in dropped:
+            logger.info("Dropping %s (items=%s, missing %s)", hit_id, items, require_item)
+        logger.info("Kept %d/%d hits matching Item %s", len(kept), len(hits), require_item)
+        return kept
+
     return hits
 
 
@@ -245,6 +261,7 @@ def collect_filings(
     forms: str,
     start_date: date,
     end_date: date,
+    require_item: str | None,
 ) -> list[Filing]:
     with build_client(user_agent) as client:
         hits = search_filings(
@@ -253,6 +270,7 @@ def collect_filings(
             forms=forms,
             start_date=start_date,
             end_date=end_date,
+            require_item=require_item,
         )
         filings: list[Filing] = []
         for i, hit in enumerate(hits, 1):
@@ -340,6 +358,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--query", default=DEFAULT_QUERY, help=f"EDGAR full-text query (default: {DEFAULT_QUERY!r})")
     p.add_argument("--forms", default=DEFAULT_FORMS, help=f"Form types, comma-separated (default: {DEFAULT_FORMS!r})")
+    p.add_argument(
+        "--require-item",
+        default="1.05",
+        help="Drop hits whose 8-K items list does not contain this value. Pass empty string to disable (default: '1.05').",
+    )
     p.add_argument("--days", type=int, default=30, help="Look-back window in days (default: 30)")
     p.add_argument("--start", type=lambda s: datetime.strptime(s, "%Y-%m-%d").date(), help="Start date YYYY-MM-DD (overrides --days)")
     p.add_argument("--end", type=lambda s: datetime.strptime(s, "%Y-%m-%d").date(), help="End date YYYY-MM-DD (default: today)")
@@ -366,6 +389,7 @@ def main(argv: list[str] | None = None) -> int:
         forms=args.forms,
         start_date=start_date,
         end_date=end_date,
+        require_item=args.require_item or None,
     )
     df = write_csv(filings, args.output)
 

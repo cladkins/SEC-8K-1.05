@@ -41,6 +41,10 @@ python edgar8k.py --start 2024-01-01 --end 2024-03-31
 # Different query / forms
 python edgar8k.py --query '"ransomware"' --forms 8-K,10-K
 
+# Disable the Item 1.05 filter (include search false-positives like 10-Ks
+# that merely mention the phrase)
+python edgar8k.py --require-item ""
+
 # Email the result
 python edgar8k.py --email sendgrid
 python edgar8k.py --email smtp
@@ -62,4 +66,8 @@ python edgar8k.py -v
 - The disclosure extractor finds the "Item 1.05" header in the filing's HTML
   and captures text up to the next Item header or a "Cautionary Statement"
   block.
+- EDGAR's full-text search can return false positives (e.g. 10-Ks that
+  mention the phrase "Material Cybersecurity Incidents" only as boilerplate).
+  By default `--require-item 1.05` filters those out using EDGAR's structured
+  `items` field on each hit.
 - Requests are spaced out to stay under SEC's 10 req/sec rate limit.
