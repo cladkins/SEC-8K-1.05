@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    image: edgar8k-web
+    ports:
+      - "5000:5000"
+    environment:
+      # SEC fair-access policy requires real contact info.
+      SEC_USER_AGENT: ${SEC_USER_AGENT:-Chris Adkins cladkins@gmail.com}
+      EDGAR_OUTPUT_DIR: /data
+    volumes:
+      - ./results:/data
+    restart: unless-stopped

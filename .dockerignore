@@ -1,0 +1,14 @@
+.git
+.gitignore
+.github
+.env
+.env.example
+results
+*.pyc
+*.pyo
+__pycache__
+.venv
+venv
+LICENSE
+readme.md
+mysecrets.py
