@@ -1,14 +1,15 @@
-name: EDGAR 8-K 1.05 weekly scrape
+name: EDGAR 8-K 1.05 daily scrape
 
 on:
   schedule:
-    # Monday 14:00 UTC (10:00 ET / 09:00 CT) — picks up the prior week's filings.
-    - cron: "0 14 * * 1"
+    # Every day at 14:00 UTC (10:00 ET / 09:00 CT) — captures the prior
+    # day's filings plus anything filed so far this morning.
+    - cron: "0 14 * * *"
   workflow_dispatch:
     inputs:
       days:
         description: "Look-back window in days"
-        default: "7"
+        default: "1"
         required: false
 
 permissions:
@@ -41,7 +42,7 @@ jobs:
       - name: Compute run window
         id: window
         run: |
-          DAYS="${{ github.event.inputs.days || '7' }}"
+          DAYS="${{ github.event.inputs.days || '1' }}"
           END=$(date -u +%Y-%m-%d)
           START=$(date -u -d "$END - $DAYS days" +%Y-%m-%d)
           STAMP=$(date -u +%Y-%m-%d)
@@ -78,5 +79,5 @@ jobs:
             echo "No new results to commit."
             exit 0
           fi
-          git commit -m "Weekly EDGAR 8-K Item 1.05 scrape ${{ steps.window.outputs.stamp }}"
+          git commit -m "Daily EDGAR 8-K Item 1.05 scrape ${{ steps.window.outputs.stamp }}"
           git push
