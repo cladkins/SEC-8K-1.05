@@ -1,0 +1,108 @@
+# SEC 8-K Item 1.05 — Material Cybersecurity Incidents
+
+Disclosures filed between **2026-02-10** and **2026-05-11**. _Generated 2026-05-11 from EDGAR full-text search for "Material Cybersecurity Incidents"._
+
+**4 filings.**
+
+## Table of contents
+
+- [TRIO-TECH INTERNATIONAL — filed 2026-03-20](#trio-tech-international)
+- [CareCloud, Inc. — filed 2026-03-27](#carecloud-inc)
+- [UFP TECHNOLOGIES INC — filed 2026-02-24](#ufp-technologies-inc)
+- [STRYKER CORP — filed 2026-04-09](#stryker-corp)
+
+---
+
+## TRIO-TECH INTERNATIONAL (TRT)
+
+**Filed:** 2026-03-20  
+**Reporting for:** 2026-03-18  
+**Form:** 8-K (Current report)
+
+**CIK 0000732026** · Located: Van Nuys, CA · Incorporated: CA · File #: 001-14523
+
+[View filing on SEC.gov →](https://www.sec.gov/Archives/edgar/data/0000732026/000143774926009193/trt20260320_8k.htm)
+
+### Disclosure
+
+> Material Cybersecurity Incidents On March 11, 2026, Trio-Tech International (“Company”) identified and responded to a cybersecurity incident in one of its subsidiaries (“subsidiary”) in Singapore. The subsidiary experienced a ransomware incident that resulted in encryption of certain files within the Company’s network. At that time, management determined that the incident was not material.
+>
+> On March 18, 2026, the incident escalated and resulted in the unauthorized disclosure of certain Company data. Following this development, management concluded that the incident may constitute a material cybersecurity event. Upon discovery of the cybersecurity incident, the subsidiary immediately activated its response protocols, implemented containment measures, including proactively taking its network offline, launching an investigation with the assistance of third-party cybersecurity professionals and notifying law enforcement in Singapore.
+>
+> The subsidiary is taking steps to contain the incident, restore affected systems, and enhance monitoring across its network environment. The subsidiary is in the process of notifying affected parties as required by applicable law. The scope of the data potentially affected has not yet been fully determined, and the Company’s investigation remains ongoing.
+>
+> The subsidiary is also working closely with its cyber insurance provider to support the investigation, remediation, and potential claims process. The full scope and impact of this incident is not yet known and could result in a future determination that the incident may be material to the Company's financial statements and results of operations. As of the date of this Form 8-K, the incident has not resulted in any material disruption to the subsidiary’s operations or the Company’s business, and the Company does not expect this incident to have a material impact on the Company’s financial results and operations for the three months ended March 31, 2026.
+>
+> Safe Harbor Statement Statements in this Current Report on Form 8-K that are not historical facts, such as those identified by the use of words “anticipate,” “believe,” “could,” “estimate,” “expect,” “feel,” “forecast,” “intend,” “may,” “plan,” “potential,” “project,” “should,” “would,” and similar expressions, are forward-looking statements under the provisions of the Private Securities Litigation Reform Act of 1995. Forward-looking statements address the Company’s expectations or beliefs concerning future events, including the Company’s investigation of and containment efforts related to the cybersecurity incident and its impact on the Company’s financial condition and results of operations. These statements are made based on management’s views and assumptions as of the date of this report.
+>
+> Forward-looking statements by their nature address matters that are uncertain, and you are urged to view them with caution. A wide range of factors could materially affect future developments and performance, including but not limited to uncertainties related to the Company’s ongoing investigation of the cybersecurity incident and the possibility that the Company’s containment and remediation efforts may be unsuccessful. Detailed information about these and other risks is included in the Company’s Annual Report on Form 10-K for the year ended June 30, 2025, and its other reports filed with the Securities and Exchange Commission.
+>
+> Except as required by applicable law, we do not undertake any obligation to publicly update or revise any of these forward-looking statements, whether as a result of new information, future events, or otherwise. SIGNATURES Pursuant to the requirements of the Securities Exchange Act of 1934, the Registrant has duly caused this report to be signed on its behalf by the undersigned hereunto duly authorized. Date: March 20, 2026 TRIO-TECH INTERNATIONAL By: /s/ SRINIVASAN ANITHA Name: Srinivasan Anitha Title: Chief Financial Officer
+
+---
+
+## CareCloud, Inc. (CCLD, CCLDO)
+
+**Filed:** 2026-03-27  
+**Reporting for:** 2026-03-24  
+**Form:** 8-K (Current report)
+
+**CIK 0001582982** · Located: Somerset, NJ · Incorporated: DE · File #: 001-36529
+
+[View filing on SEC.gov →](https://www.sec.gov/Archives/edgar/data/0001582982/000149315226013239/form8-k.htm)
+
+### Disclosure
+
+> Material Cybersecurity Incidents. On March 16, 2026, CareCloud, Inc. (the “Company”) experienced a temporary network disruption in its CareCloud Health division that partially impacted the functionality and data access to 1 of its 6 electronic health record environments for approximately 8 hours until the Company fully restored all functionality and data access during that evening.
+>
+> Upon discovery of this incident, the Company promptly reported the matter to its cybersecurity carrier and engaged a leading cyber response advisory team which is part of a Big Four accounting firm to perform external cybersecurity work and to assist with securing the environment, as well as to conduct a comprehensive IT forensic investigation to determine the nature and scope of this incident. The Company further believes that the incident was contained to the CareCloud Health environment and did not affect the Company’s other platforms, divisions, systems, data or environments. The incident was contained on the day it was discovered.
+>
+> The Company believes that it has sufficient cybersecurity insurance coverage for any potential losses. The Company further believes that the incident was caused by an unauthorized third party who temporarily had access to the system. The Company has reported the matter to the appropriate law enforcement authorities.
+>
+> The Company is continuing to investigate the nature and scope of the incident. The affected environment stores patient information, and the Company continues to assess whether, and the extent to which, patient information or other data was accessed or exfiltrated, and the categories and volume of any such data. All affected systems have been fully restored, and the Company believes that the threat actor no longer has any access to the same.
+>
+> As part of its remediation efforts, the Company is working with its outside cybersecurity experts to further reinforce its information technology systems and to prevent future unauthorized access. As of the date of this Current Report on Form 8-K, the incident has not had a material impact on the Company’s operations. On March 24, 2026, the Company nevertheless determined that the incident is material in light of the sensitivity of the potentially affected information and the potential consequences of the incident, including remediation and response costs, legal, regulatory and notification-related matters, and possible effects on patients, customers, counterparties, reputation and operations.
+>
+> The Company believes that the incident is no t reasonably likely to have a material impact on the Company’s financial condition or results of operations but has not yet determined the full impact of the incident. To the extent any information required by
+
+---
+
+## UFP TECHNOLOGIES INC (UFPT)
+
+**Filed:** 2026-02-24  
+**Reporting for:** 2026-02-19  
+**Form:** 8-K (Current report)
+
+**CIK 0000914156** · Located: Newburyport, MA · Incorporated: DE · File #: 001-12648
+
+[View filing on SEC.gov →](https://www.sec.gov/Archives/edgar/data/0000914156/000162828026011152/ufpt-20260219.htm)
+
+### Disclosure
+
+> Material Cybersecurity Incidents. On or about February 14, 2026, UFP Technologies, Inc. (the “Company”) detected suspicious activity involving its information technology (“IT”) systems.
+>
+> Upon detecting the issue, the Company began taking steps to assess, contain, and remediate the unauthorized activity, including isolating the affected systems and launching an investigation with the assistance of external cybersecurity advisors. Through the Company’s efforts, the Company believes that the third party responsible for this cybersecurity incident has been removed from the Company’s IT systems, and the Company’s ability to access information impacted by this incident has been restored in all material respects. The incident appears to have impacted many but not all of the Company’s IT systems and affected functions such as billing and label making for customer deliveries.
+>
+> Certain Company or Company-related data appear to have been stolen or destroyed. As a result of the Company’s contingency plans and data backup systems, the Company implemented planned solutions for the issues posed by the incident. The Company’s operations have continued since the detection of the cybersecurity incident in all material respects.
+>
+> Although the Company has ascertained that certain files were exfiltrated, it is still investigating the extent of any sensitive information contained in the accessed systems, including whether any personal information was exfiltrated. It is evaluating what legal and regulatory notifications and filings may be required as a result of this incident and will make such filings as are required based on its findings. The Company continues to investigate the nature and scope of the unauthorized access.
+>
+> The Company currently expects that a significant portion of its direct costs incurred relating to containing, investigating and remediating the cybersecurity incident will be reimbursed through insurance recoveries. As of the date hereof, the incident has not had a material impact on the Company’s financial systems, operations or financial condition. While the Company’s investigation and assessment of this incident is ongoing, as of the date of this filing, the Company believes its primary IT systems are operational in all material respects and the Company does not believe the incident is reasonably likely to materially impact the Company’s financial condition or results of operations.
+
+---
+
+## STRYKER CORP (SYK)
+
+**Filed:** 2026-04-09  
+**Reporting for:** 2026-03-11  
+**Form:** 8-K/A (Current report)
+
+**CIK 0000310764** · Located: Portage, MI · Incorporated: MI · File #: 001-13149
+
+[View filing on SEC.gov →](https://www.sec.gov/Archives/edgar/data/0000310764/000119312526149607/d112875d8ka.htm)
+
+### Disclosure
+
+> Material Cybersecurity Incidents. As previously disclosed in the Original Report and as further reported on two
+
+---
