@@ -53,6 +53,28 @@ python edgar8k.py --email smtp
 python edgar8k.py -v
 ```
 
+## Web GUI (Docker)
+
+A small Flask GUI is bundled for browser-driven runs. It uses the same
+`edgar8k.py` core as the CLI — no Selenium, no browser inside the
+container.
+
+```bash
+# Build and run
+docker compose up --build
+
+# Or without compose
+docker build -t edgar8k-web .
+docker run --rm -p 5000:5000 \
+  -e SEC_USER_AGENT="Your Name you@example.com" \
+  -v "$(pwd)/results:/data" \
+  edgar8k-web
+```
+
+Then open <http://localhost:5000>. The form mirrors the CLI flags
+(`query`, `days`, `forms`, `require_item`); CSV and Markdown outputs
+land in `./results/`.
+
 ## CSV columns
 
 `Form & File`, `Filed`, `Reporting for`, `Filing entity/person`, `CIK`,
