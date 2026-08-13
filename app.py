@@ -27,6 +27,7 @@ from edgar8k import (
     write_csv,
     write_markdown,
 )
+from supabase_sink import sync_csv
 
 logger = logging.getLogger("edgar8k.web")
 
@@ -109,6 +110,13 @@ def _scrape_thread(params: dict) -> None:
         # Refresh rolling "latest" copies.
         (OUTPUT_DIR / "latest.csv").write_bytes(csv_path.read_bytes())
         (OUTPUT_DIR / "latest.md").write_bytes(md_path.read_bytes())
+
+        # Optional Supabase sink (no-op unless configured) - results on disk
+        # are already written, so a sink failure must never fail the scrape.
+        try:
+            sync_csv(csv_path)
+        except Exception:
+            logger.exception("Supabase sink failed (results still written)")
 
         _update(
             results=[f.to_row() for f in filings],
