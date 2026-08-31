@@ -1,8 +1,11 @@
-# SEC 8-K Item 1.05 — Material Cybersecurity Incidents
+# SEC 8-K Cybersecurity Incident Disclosures
 
-Pulls SEC EDGAR 8-K filings that disclose a Material Cybersecurity Incident
-under Item 1.05, extracts the disclosure text, and saves the results to a CSV.
-Optionally emails the CSV via SendGrid or SMTP.
+Pulls SEC EDGAR 8-K filings that disclose a cybersecurity incident, extracts
+the disclosure text, and saves the results to a CSV. Two categories, run as
+separate searches and tagged in the output (see Notes below):
+Item 1.05 (mandatory, materiality already determined) and Item 7.01/8.01
+(voluntary, "still investigating, materiality not yet determined"). Optionally
+emails the CSV via SendGrid or SMTP.
 
 Originally a Selenium scraper; rewritten to use the official EDGAR
 full-text-search JSON API. No browser required.
@@ -45,6 +48,9 @@ python edgar8k.py --query '"ransomware"' --forms 8-K,10-K
 # that merely mention the phrase)
 python edgar8k.py --require-item ""
 
+# Skip the Item 7.01/8.01 voluntary-disclosure pass (Item 1.05 only)
+python edgar8k.py --no-voluntary
+
 # Email the result
 python edgar8k.py --email sendgrid
 python edgar8k.py --email smtp
@@ -79,17 +85,32 @@ land in `./results/`.
 
 `Form & File`, `Filed`, `Reporting for`, `Filing entity/person`, `CIK`,
 `Located`, `Incorporated`, `File number`, `Film number`, `Link`,
-`Cybersecurity Incident`.
+`Disclosure Type`, `Cybersecurity Incident`.
+
+`Disclosure Type` is `item_1_05` (mandatory, materiality determined) or
+`item_7_01_8_01` (voluntary, materiality not yet determined).
 
 ## Notes
 
 - Item 1.05 was added to Form 8-K by the SEC's 2023 cybersecurity disclosure
   rule and became required for most registrants on Dec 18, 2023.
-- The disclosure extractor finds the "Item 1.05" header in the filing's HTML
-  and captures text up to the next Item header or a "Cautionary Statement"
-  block.
+- The disclosure extractor finds the matched item's header ("Item 1.05" or
+  "Item 7.01"/"Item 8.01") in the filing's HTML and captures text up to the
+  next Item header or a "Cautionary Statement" block.
 - EDGAR's full-text search can return false positives (e.g. 10-Ks that
   mention the phrase "Material Cybersecurity Incidents" only as boilerplate).
   By default `--require-item 1.05` filters those out using EDGAR's structured
   `items` field on each hit.
+- The Item 7.01/8.01 voluntary pass searches the broader, generic phrase
+  "cybersecurity incident" (no Item 1.05 boilerplate required), since that's
+  the whole point - catching early disclosures before a materiality
+  determination exists. That looser phrase can hit an accession where the
+  actual match is in an unrelated document within the same filing (e.g. a
+  press release about board changes, filed under 7.01/8.01 for an unrelated
+  reason). A real disclosure always has extractable body text right after its
+  item header, so a "Not found" extraction on this pass is treated as a false
+  positive and silently dropped, rather than shown against a company that
+  didn't have an incident. (Item 1.05 hits keep "Not found" as a visible
+  row instead - a real, mandatory disclosure failing to extract is a bug
+  worth seeing, not a filing worth hiding.)
 - Requests are spaced out to stay under SEC's 10 req/sec rate limit.

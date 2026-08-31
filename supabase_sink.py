@@ -79,6 +79,9 @@ def row_to_record(row: dict) -> dict | None:
         "film_number": (row.get("Film number") or "").strip() or None,
         "link": row.get("Link") or None,
         "incident_text": _clean_incident_text(row.get("Cybersecurity Incident", "")),
+        # Absent in CSVs from before this column existed - None there is
+        # correct (unknown), not a false claim of either disclosure type.
+        "disclosure_type": (row.get("Disclosure Type") or "").strip() or None,
     }
 
 

@@ -1,8 +1,15 @@
-"""Fetch SEC EDGAR 8-K filings disclosing Material Cybersecurity Incidents (Item 1.05).
+"""Fetch SEC EDGAR 8-K filings disclosing cybersecurity incidents.
 
-Hits EDGAR's full-text-search JSON API directly (no browser), pulls the Item 1.05
-disclosure text for each hit, writes a CSV, and optionally emails the result via
-SendGrid or SMTP.
+Two categories, searched independently and tagged in the output:
+  - Item 1.05 (Material Cybersecurity Incidents) - the mandatory disclosure,
+    filed once a registrant has determined an incident is material.
+  - Item 7.01/8.01 voluntary disclosures - "we found something, still
+    investigating, materiality not yet determined." Common in practice,
+    often filed days (or weeks) before a formal 1.05, if one ever follows.
+
+Hits EDGAR's full-text-search JSON API directly (no browser), pulls the
+relevant item's disclosure text for each hit, writes a CSV, and optionally
+emails the result via SendGrid or SMTP.
 """
 
 from __future__ import annotations
@@ -38,6 +45,18 @@ DEFAULT_QUERY = '"Material Cybersecurity Incidents"'
 DEFAULT_FORMS = "8-K"
 DEFAULT_OUTPUT = "Edgar 8k 1.05 Results.csv"
 
+# Voluntary/early disclosures: a company says "cybersecurity incident"
+# without the Item 1.05 boilerplate phrase because it hasn't (yet, or ever)
+# determined materiality. An actual Item 1.05 filing's own prose almost
+# always ALSO contains this broader phrase, so this second pass would
+# re-find those too - main() dedupes by filing link across both passes so
+# each filing keeps only its most specific classification (1.05 wins).
+VOLUNTARY_QUERY = '"cybersecurity incident"'
+VOLUNTARY_REQUIRE_ITEMS = ["7.01", "8.01"]
+
+DISCLOSURE_TYPE_MATERIAL = "item_1_05"
+DISCLOSURE_TYPE_VOLUNTARY = "item_7_01_8_01"
+
 CSV_COLUMNS = [
     "Form & File",
     "Filed",
@@ -49,6 +68,7 @@ CSV_COLUMNS = [
     "File number",
     "Film number",
     "Link",
+    "Disclosure Type",
     "Cybersecurity Incident",
 ]
 
@@ -72,6 +92,7 @@ class Filing:
     film_number: str
     link: str
     incident_text: str
+    disclosure_type: str = DISCLOSURE_TYPE_MATERIAL
 
     def to_row(self) -> dict:
         return {
@@ -85,6 +106,7 @@ class Filing:
             "File number": self.file_number,
             "Film number": self.film_number,
             "Link": self.link,
+            "Disclosure Type": self.disclosure_type,
             "Cybersecurity Incident": self.incident_text,
         }
 
@@ -133,7 +155,8 @@ def search_filings(
     forms: str,
     start_date: date,
     end_date: date,
-    require_item: str | None,
+    require_item: str | None = None,
+    require_items: Iterable[str] | None = None,
 ) -> list[dict]:
     params = {
         "q": query,
@@ -150,18 +173,22 @@ def search_filings(
     hits = resp.json().get("hits", {}).get("hits", [])
     logger.info("EDGAR returned %d hits", len(hits))
 
-    if require_item:
+    # require_items (a set, any-match) supersedes the older single-value
+    # require_item if both are somehow given - existing single-item callers
+    # (the CLI's primary pass, app.py's Flask GUI) are unaffected either way.
+    wanted = list(require_items) if require_items else ([require_item] if require_item else None)
+    if wanted:
         kept = []
         dropped = []
         for h in hits:
             items = (h.get("_source") or {}).get("items") or []
-            if require_item in items:
+            if any(w in items for w in wanted):
                 kept.append(h)
             else:
                 dropped.append((h.get("_id", "?"), items))
         for hit_id, items in dropped:
-            logger.info("Dropping %s (items=%s, missing %s)", hit_id, items, require_item)
-        logger.info("Kept %d/%d hits matching Item %s", len(kept), len(hits), require_item)
+            logger.info("Dropping %s (items=%s, missing any of %s)", hit_id, items, wanted)
+        logger.info("Kept %d/%d hits matching item(s) %s", len(kept), len(hits), wanted)
         return kept
 
     return hits
@@ -184,15 +211,18 @@ def build_filing_url(cik: str, adsh: str, filename: str) -> str:
     return f"{EDGAR_ARCHIVE_BASE}/{cik}/{adsh_nodash}/{filename}"
 
 
-_ITEM_HEADER_RE = re.compile(r"Item\s*1\.05", re.IGNORECASE)
 _NEXT_BOUNDARY_RE = re.compile(
     r"(?:\bItem\s+\d+\.\d+\b|Cautionary\s+Statement)",
     re.IGNORECASE,
 )
 
 
-def extract_incident_text(html: str) -> str:
-    """Pull the body of the Item 1.05 disclosure from a filing's HTML."""
+def _item_header_re(item: str) -> re.Pattern[str]:
+    return re.compile(rf"Item\s*{re.escape(item)}\b", re.IGNORECASE)
+
+
+def extract_incident_text(html: str, item: str = "1.05") -> str:
+    """Pull the body of the given item's disclosure from a filing's HTML."""
     soup = BeautifulSoup(html, "lxml")
     raw = soup.get_text(separator=" ", strip=True)
     # Collapse runs of whitespace.
@@ -200,7 +230,7 @@ def extract_incident_text(html: str) -> str:
     if not text:
         return "Not found"
 
-    start = _ITEM_HEADER_RE.search(text)
+    start = _item_header_re(item).search(text)
     if not start:
         return "Not found"
 
@@ -210,7 +240,13 @@ def extract_incident_text(html: str) -> str:
     return body.strip()
 
 
-def hit_to_filing(hit: dict, client: httpx.Client) -> Filing | None:
+def hit_to_filing(
+    hit: dict,
+    client: httpx.Client,
+    *,
+    disclosure_type: str = DISCLOSURE_TYPE_MATERIAL,
+    item_for_extraction: str = "1.05",
+) -> Filing | None:
     source = hit.get("_source", {})
     hit_id = hit.get("_id", "")
     if ":" in hit_id:
@@ -241,7 +277,7 @@ def hit_to_filing(hit: dict, client: httpx.Client) -> Filing | None:
     if link:
         try:
             doc_resp = get_with_retry(client, link)
-            incident_text = extract_incident_text(doc_resp.text)
+            incident_text = extract_incident_text(doc_resp.text, item_for_extraction)
         except Exception as e:
             logger.warning("Failed to fetch %s: %s", link, e)
         # Be polite to SEC servers (10 req/sec cap).
@@ -259,6 +295,7 @@ def hit_to_filing(hit: dict, client: httpx.Client) -> Filing | None:
         film_number=film_numbers[0] if film_numbers else "",
         link=link,
         incident_text=incident_text,
+        disclosure_type=disclosure_type,
     )
 
 
@@ -269,8 +306,11 @@ def collect_filings(
     forms: str,
     start_date: date,
     end_date: date,
-    require_item: str | None,
+    require_item: str | None = None,
+    require_items: Iterable[str] | None = None,
+    disclosure_type: str = DISCLOSURE_TYPE_MATERIAL,
 ) -> list[Filing]:
+    wanted = list(require_items) if require_items else ([require_item] if require_item else [])
     with build_client(user_agent) as client:
         hits = search_filings(
             client,
@@ -278,14 +318,42 @@ def collect_filings(
             forms=forms,
             start_date=start_date,
             end_date=end_date,
-            require_item=require_item,
+            require_items=wanted or None,
         )
         filings: list[Filing] = []
         for i, hit in enumerate(hits, 1):
             logger.info("[%d/%d] Fetching filing detail", i, len(hits))
-            filing = hit_to_filing(hit, client)
-            if filing:
-                filings.append(filing)
+            # Multiple acceptable items (the voluntary pass) - extract from
+            # whichever one this specific hit actually carries.
+            hit_items = (hit.get("_source") or {}).get("items") or []
+            item_for_extraction = next((w for w in wanted if w in hit_items), wanted[0] if wanted else "1.05")
+            filing = hit_to_filing(
+                hit, client,
+                disclosure_type=disclosure_type,
+                item_for_extraction=item_for_extraction,
+            )
+            if not filing:
+                continue
+            # The voluntary pass matches on a generic 2-word phrase with no
+            # structural guarantee it's a real cyber narrative (unlike Item
+            # 1.05, which is a formal, mandatory disclosure format) - EDGAR's
+            # full-text search can return a hit whose item metadata says
+            # 7.01/8.01 for a completely unrelated reason (board changes,
+            # a supply agreement, ...) while "cybersecurity incident" only
+            # appears elsewhere in that same accession. A real disclosure
+            # always has extractable body text right after its item header;
+            # "Not found" here means treat the match as a false positive
+            # rather than surface a company's name against a nonexistent
+            # incident. (Item 1.05 hits keep "Not found" as-is - a real,
+            # mandatory disclosure that failed to extract is a bug worth
+            # seeing, not a filing worth hiding.)
+            if disclosure_type == DISCLOSURE_TYPE_VOLUNTARY and filing.incident_text == "Not found":
+                logger.info(
+                    "Dropping %s (%s): no extractable Item %s narrative - likely false positive",
+                    filing.filing_entity, filing.link, item_for_extraction,
+                )
+                continue
+            filings.append(filing)
         return filings
 
 
@@ -326,6 +394,16 @@ def _paragraphize(text: str, sentences_per_paragraph: int = 3) -> list[str]:
     return paragraphs
 
 
+_DISCLOSURE_TYPE_LABELS = {
+    DISCLOSURE_TYPE_MATERIAL: "Material (Item 1.05)",
+    DISCLOSURE_TYPE_VOLUNTARY: "Early/voluntary, materiality not yet determined (Item 7.01/8.01)",
+}
+
+
+def _disclosure_type_label(value: str) -> str:
+    return _DISCLOSURE_TYPE_LABELS.get(value, value)
+
+
 def render_markdown(
     filings: list[Filing],
     *,
@@ -335,7 +413,7 @@ def render_markdown(
 ) -> str:
     today = date.today().isoformat()
     lines: list[str] = []
-    lines.append("# SEC 8-K Item 1.05 — Material Cybersecurity Incidents")
+    lines.append("# SEC 8-K Cybersecurity Incident Disclosures")
     lines.append("")
     lines.append(
         f"Disclosures filed between **{start_date.isoformat()}** and "
@@ -369,6 +447,7 @@ def render_markdown(
             f"**Filed:** {f.filed}",
             f"**Reporting for:** {f.reporting_for or '—'}",
             f"**Form:** {f.form_and_file.strip() or '—'}",
+            f"**Disclosure type:** {_disclosure_type_label(f.disclosure_type)}",
         ]
         lines.append("  \n".join(meta))
         lines.append("")
@@ -508,6 +587,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Skip writing the Markdown summary.",
     )
+    p.add_argument(
+        "--no-voluntary",
+        action="store_true",
+        help=(
+            "Skip the broader Item 7.01/8.01 voluntary-disclosure pass "
+            f"({VOLUNTARY_QUERY}) - only search for Item 1.05."
+        ),
+    )
     p.add_argument("--email", choices=["none", "sendgrid", "smtp"], default="none", help="Email the results after writing the CSV")
     p.add_argument("--user-agent", default=os.environ.get("SEC_USER_AGENT", DEFAULT_USER_AGENT), help="Value for the SEC User-Agent header")
     p.add_argument("-v", "--verbose", action="store_true", help="Enable debug logging")
@@ -531,7 +618,25 @@ def main(argv: list[str] | None = None) -> int:
         start_date=start_date,
         end_date=end_date,
         require_item=args.require_item or None,
+        disclosure_type=DISCLOSURE_TYPE_MATERIAL,
     )
+
+    if not args.no_voluntary:
+        seen_links = {f.link for f in filings if f.link}
+        voluntary = collect_filings(
+            user_agent=args.user_agent,
+            query=VOLUNTARY_QUERY,
+            forms=args.forms,
+            start_date=start_date,
+            end_date=end_date,
+            require_items=VOLUNTARY_REQUIRE_ITEMS,
+            disclosure_type=DISCLOSURE_TYPE_VOLUNTARY,
+        )
+        # A filing the Item 1.05 pass already caught keeps that more
+        # specific classification - this pass only adds genuinely new ones.
+        filings.extend(f for f in voluntary if f.link not in seen_links)
+        filings.sort(key=lambda f: f.filed, reverse=True)
+
     df = write_csv(filings, args.output)
 
     if not args.no_markdown:
