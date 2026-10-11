@@ -1,32 +1,5 @@
 # SEC 8-K Cybersecurity Incident Disclosures
 
-Disclosures filed between **2026-10-09** and **2026-10-10**. _Generated 2026-10-10 from EDGAR full-text search for "Material Cybersecurity Incidents"._
+Disclosures filed between **2026-10-10** and **2026-10-11**. _Generated 2026-10-11 from EDGAR full-text search for "Material Cybersecurity Incidents"._
 
-**1 filing.**
-
-## Table of contents
-
-- [Stride, Inc. — filed 2026-10-09](#stride-inc)
-
----
-
-## Stride, Inc. (LRN)
-
-**Filed:** 2026-10-09  
-**Reporting for:** 2026-10-08  
-**Form:** 8-K (Current report)  
-**Disclosure type:** Early/voluntary, materiality not yet determined (Item 7.01/8.01)
-
-**CIK 0001157408** · Located: Reston, VA · Incorporated: DE · File #: 001-33883
-
-[View filing on SEC.gov →](https://www.sec.gov/Archives/edgar/data/0001157408/000110465926114863/tm2627338d1_8k.htm)
-
-### Disclosure
-
-> . Regulation FD Disclosure. On October 9, 2026, the Company issued a press release announcing the entry into the Cooperation Agreement, the appointment of Mr.
->
-> Haggart to the Board effective as of the Appointment Date and Time, the appointment of Dr. Guttentag as the Board Observer and his expected appointment to the Board following the 2026 Annual Meeting, and the formation of the Capital Allocation Committee. As announced in the press release, following completion of the Capital Allocation Committee’s initial review, which is expected to occur within the next three months, the Company will publicly announce its target capital structure and a clear framework for allocating future cash flows to maximize long-term value.
->
-> A copy of the press release is furnished as Exhibit 99.1 hereto and is incorporated herein by reference. The information contained in this
-
----
+_No matching filings in this window._
