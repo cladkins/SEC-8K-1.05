@@ -1,5 +1,5 @@
 # SEC 8-K Cybersecurity Incident Disclosures
 
-Disclosures filed between **2026-11-02** and **2026-11-03**. _Generated 2026-11-03 from EDGAR full-text search for "Material Cybersecurity Incidents"._
+Disclosures filed between **2026-11-03** and **2026-11-04**. _Generated 2026-11-04 from EDGAR full-text search for "Material Cybersecurity Incidents"._
 
 _No matching filings in this window._
